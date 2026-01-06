@@ -116,16 +116,10 @@ vim.keymap.set("n", "<C-d>", "<C-d>zz", { desc = "Half page down" })
 vim.keymap.set("n", "<C-u>", "<C-u>zz", { desc = "Half page up" })
 
 -- Splitting & resizing
-vim.keymap.set("n", "<leader>wv", ":vsplit<CR>", { desc = "Split window vertically" })
-vim.keymap.set("n", "<leader>wh", ":split<CR>", { desc = "Split window horizontally" })
 vim.keymap.set("n", "<C-Up>", ":resize +2<CR>", { desc = "Increase window height" })
 vim.keymap.set("n", "<C-Down>", ":resize -2<CR>", { desc = "Decrease window height" })
 vim.keymap.set("n", "<C-Left>", ":vertical resize -2<CR>", { desc = "Decrease window width" })
 vim.keymap.set("n", "<C-Right>", ":vertical resize +2<CR>", { desc = "Increase window width" })
-
--- Diagnostics
-vim.keymap.set("n", "<leader>dq", ":lua vim.diagnostic.setqflist()<CR>", { desc = "Add all diagnostics to the quickfix list" })
-vim.keymap.set("n", "<leader>dl", ":lua vim.diagnostic.setloclist()<CR>", { desc = "Add buffer diagnostics to the location list" })
 
 -- Tabs
 vim.keymap.set("n", "<leader>tn", ":tabnew<CR>", { desc = "Create new tab" })
@@ -135,7 +129,6 @@ vim.keymap.set("n", "<leader>tq", ":tabclose<CR>", { desc = "Close current tab" 
 -- Option toggling
 vim.keymap.set("n", "<leader>ow", ":set wrap!<CR>", { desc = "Toggle word wrap" })
 vim.keymap.set("n", "<leader>oh", ":nohlsearch<CR>", { desc = "Clear search highlights" })
-
 function toggle_colorcolumn()
     if vim.wo.colorcolumn ~= "0" then
         vim.wo.colorcolumn = "0"
@@ -156,12 +149,6 @@ vim.api.nvim_create_autocmd("TextYankPost", {
     group = vim.api.nvim_create_augroup("tommi-highlight-yank", {}),
     desc = "Highlight when yanking text",
     callback = function() vim.hl.on_yank() end,
-})
-
-vim.api.nvim_create_autocmd("ModeChanged", {
-    group = vim.api.nvim_create_augroup("tommi-update-loclist", {}),
-    desc = "Update loclist with diagnostics when changing modes",
-    callback = function() vim.diagnostic.setloclist({ open = false }) end,
 })
 
 --
@@ -309,6 +296,67 @@ require("lazy").setup({
             for _, lsp_server in ipairs(lsp_servers) do
                 vim.lsp.enable(lsp_server)
             end
+        end,
+    },
+    {
+        "folke/trouble.nvim",
+        opts = {},
+        cmd = "Trouble",
+        keys = {
+            {
+                "<leader>da",
+                ":Trouble diagnostics toggle<CR>",
+                desc = "Toggle diagnostics (all)",
+            },
+            {
+                "<leader>db",
+                ":Trouble diagnostics toggle filter.buf=0<CR>",
+                desc = "Toggle diagnostics (buffer)",
+            },
+            {
+                "<leader>dl",
+                ":Trouble loclist toggle<CR>",
+                desc = "Toggle location list",
+            },
+            {
+                "<leader>dq",
+                ":Trouble qflist toggle<CR>",
+                desc = "Toggle quickfix list",
+            },
+        },
+    },
+    {
+        "ThePrimeagen/harpoon",
+        branch = "harpoon2",
+        dependencies = { "nvim-lua/plenary.nvim" },
+        config = function()
+            local harpoon = require("harpoon")
+            harpoon:setup()
+
+            vim.keymap.set("n", "<leader>ha", function() harpoon:list():add() end, { desc = "Add to harpoon list" })
+            vim.keymap.set("n", "<leader>hl", function() harpoon.ui:toggle_quick_menu(harpoon:list()) end, { desc = "Show harpoon list" })
+
+            vim.keymap.set("n", "<leader>hra", function() harpoon:list():replace_at(1) end, { desc = "Replace harpoon list item 1" })
+            vim.keymap.set("n", "<leader>hrs", function() harpoon:list():replace_at(2) end, { desc = "Replace harpoon list item 2" })
+            vim.keymap.set("n", "<leader>hrd", function() harpoon:list():replace_at(3) end, { desc = "Replace harpoon list item 3" })
+            vim.keymap.set("n", "<leader>hrf", function() harpoon:list():replace_at(4) end, { desc = "Replace harpoon list item 4" })
+
+            local harpoon_select = function(idx)
+                harpoon:list():select(idx)
+                if vim.bo.buftype == "terminal" then
+                    vim.cmd(":startinsert")
+                end
+            end
+            vim.keymap.set({"n", "t"}, "<A-a>", function() harpoon_select(1) end, { desc = "Select harpoon list item 1" })
+            vim.keymap.set({"n", "t"}, "<A-s>", function() harpoon_select(2) end, { desc = "Select harpoon list item 2" })
+            vim.keymap.set({"n", "t"}, "<A-d>", function() harpoon_select(3) end, { desc = "Select harpoon list item 3" })
+            vim.keymap.set({"n", "t"}, "<A-f>", function() harpoon_select(4) end, { desc = "Select harpoon list item 4" })
+
+            vim.api.nvim_create_autocmd("ExitPre", {
+                group = vim.api.nvim_create_augroup("tommi-clear-harpoon-list", {}),
+                desc = "Clear harpoon list before exiting",
+                callback = function() harpoon:list():clear() end,
+            })
         end,
     },
 })
