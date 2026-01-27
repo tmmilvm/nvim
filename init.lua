@@ -121,11 +121,6 @@ vim.keymap.set("n", "<C-Down>", ":resize -2<CR>", { desc = "Decrease window heig
 vim.keymap.set("n", "<C-Left>", ":vertical resize -2<CR>", { desc = "Decrease window width" })
 vim.keymap.set("n", "<C-Right>", ":vertical resize +2<CR>", { desc = "Increase window width" })
 
--- Tabs
-vim.keymap.set("n", "<leader>tn", ":tabnew<CR>", { desc = "Create new tab" })
-vim.keymap.set("n", "<leader>tt", ":tabnew +term<CR>", { desc = "Create new tab and open the terminal" })
-vim.keymap.set("n", "<leader>tq", ":tabclose<CR>", { desc = "Close current tab" })
-
 -- Option toggling
 vim.keymap.set("n", "<leader>ow", ":set wrap!<CR>", { desc = "Toggle word wrap" })
 vim.keymap.set("n", "<leader>oh", ":nohlsearch<CR>", { desc = "Clear search highlights" })
@@ -175,13 +170,10 @@ vim.opt.rtp:prepend(lazypath)
 -- Install and set up plugins
 require("lazy").setup({
     {
-        "zenbones-theme/zenbones.nvim",
-        lazy = false,
-        priority = 1000,
-        config = function ()
-            vim.g.zenbones_compat = 1
-            vim.cmd.colorscheme("zenbones")
-        end,
+        "nyoom-engineering/oxocarbon.nvim",
+        config = function()
+            vim.cmd("colorscheme oxocarbon")
+        end
     },
     {
         "lewis6991/gitsigns.nvim",
@@ -220,16 +212,11 @@ require("lazy").setup({
             pcall(require("telescope").load_extension, "ui-select")
 
             local builtin = require("telescope.builtin")
-            vim.keymap.set("n", "<leader>sh", builtin.help_tags, { desc = "[S]earch [H]elp" })
-            vim.keymap.set("n", "<leader>sk", builtin.keymaps, { desc = "[S]earch [K]eymaps" })
-            vim.keymap.set("n", "<leader>sf", builtin.find_files, { desc = "[S]earch [F]iles" })
-            vim.keymap.set("n", "<leader>ss", builtin.builtin, { desc = "[S]earch [S]elect Telescope" })
-            vim.keymap.set("n", "<leader>sw", builtin.grep_string, { desc = "[S]earch current [W]ord" })
-            vim.keymap.set("n", "<leader>sg", builtin.live_grep, { desc = "[S]earch by [G]rep" })
-            vim.keymap.set("n", "<leader>sd", builtin.diagnostics, { desc = "[S]earch [D]iagnostics" })
-            vim.keymap.set("n", "<leader>sr", builtin.resume, { desc = "[S]earch [R]esume" })
-            vim.keymap.set("n", "<leader>s.", builtin.oldfiles, { desc = "[S]earch Recent Files ('.' for repeat)" })
-            vim.keymap.set("n", "<leader><leader>", builtin.buffers, { desc = "[ ] Find existing buffers" })
+            vim.keymap.set("n", "<C-p>", builtin.git_files, { desc = "Find from git files" })
+            vim.keymap.set("n", "<leader>pf", builtin.find_files, { desc = "Find from files" })
+            vim.keymap.set("n", "<leader>pg", builtin.live_grep, { desc = "Grep" })
+            vim.keymap.set("n", "<leader>ph", builtin.help_tags, { desc = "Search help" })
+            vim.keymap.set("n", "<leader><leader>", builtin.buffers, { desc = "Find from buffers" })
         end,
     },
     {
@@ -250,13 +237,13 @@ require("lazy").setup({
                         mode = mode or "n"
                         vim.keymap.set(mode, keys, func, { buffer = event.buf, desc = "LSP: " .. desc })
                     end
-                    map("grn", vim.lsp.buf.rename, "[R]e[n]ame")
-                    map("gra", vim.lsp.buf.code_action, "[G]oto code [a]ction", { "n", "x" })
-                    map("grr", require("telescope.builtin").lsp_references, "[G]oto [r]eferences")
-                    map("gri", require("telescope.builtin").lsp_implementations, "[G]oto [i]mplementation")
-                    map("grd", require("telescope.builtin").lsp_definitions, "[G]oto [d]efinition")
-                    map("grD", vim.lsp.buf.declaration, "[G]oto [d]eclaration")
-                    map("grt", require("telescope.builtin").lsp_type_definitions, "[G]oto [t]ype definiton")
+                    map("grn", vim.lsp.buf.rename, "Rename")
+                    map("gra", vim.lsp.buf.code_action, "Goto code action", { "n", "x" })
+                    map("grr", require("telescope.builtin").lsp_references, "Goto references")
+                    map("gri", require("telescope.builtin").lsp_implementations, "Goto implementation")
+                    map("grd", require("telescope.builtin").lsp_definitions, "Goto definition")
+                    map("grD", vim.lsp.buf.declaration, "Goto declaration")
+                    map("grt", require("telescope.builtin").lsp_type_definitions, "Goto type definiton")
                     map("gO", require("telescope.builtin").lsp_document_symbols, "Open document symbols")
                     map("gW", require("telescope.builtin").lsp_dynamic_workspace_symbols, "Open workspace symbols")
 
@@ -333,13 +320,11 @@ require("lazy").setup({
             local harpoon = require("harpoon")
             harpoon:setup()
 
-            vim.keymap.set("n", "<leader>ha", function() harpoon:list():add() end, { desc = "Add to harpoon list" })
             vim.keymap.set("n", "<leader>hl", function() harpoon.ui:toggle_quick_menu(harpoon:list()) end, { desc = "Show harpoon list" })
-
-            vim.keymap.set("n", "<leader>hra", function() harpoon:list():replace_at(1) end, { desc = "Replace harpoon list item 1" })
-            vim.keymap.set("n", "<leader>hrs", function() harpoon:list():replace_at(2) end, { desc = "Replace harpoon list item 2" })
-            vim.keymap.set("n", "<leader>hrd", function() harpoon:list():replace_at(3) end, { desc = "Replace harpoon list item 3" })
-            vim.keymap.set("n", "<leader>hrf", function() harpoon:list():replace_at(4) end, { desc = "Replace harpoon list item 4" })
+            vim.keymap.set("n", "<leader>ha", function() harpoon:list():replace_at(1) end, { desc = "Replace harpoon list item 1" })
+            vim.keymap.set("n", "<leader>hs", function() harpoon:list():replace_at(2) end, { desc = "Replace harpoon list item 2" })
+            vim.keymap.set("n", "<leader>hd", function() harpoon:list():replace_at(3) end, { desc = "Replace harpoon list item 3" })
+            vim.keymap.set("n", "<leader>hf", function() harpoon:list():replace_at(4) end, { desc = "Replace harpoon list item 4" })
 
             local harpoon_select = function(idx)
                 harpoon:list():select(idx)
